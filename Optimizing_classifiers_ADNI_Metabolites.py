@@ -16,26 +16,24 @@ from scipy.stats import f_oneway
 from statsmodels.stats.multicomp import MultiComparison
 import pickle
 
-metabo_adni = pd.read_csv('/Users/felipecabralmiranda/Desktop/Final2.csv')
+#Load data:
+metabo_adni = pd.read_csv('Final2.csv')
+
 #Preprocessing dataset:
 metabo_adni = pd.read_csv('Final2.csv')
 metabo_adni = metabo_adni.replace(['NDEF'],0)
 metabo_adni = metabo_adni.replace(['TAG'],0)
 metabo_adni = metabo_adni.fillna(0)
 
-X_adni = metabo_adni.iloc[:, 1:228].values
 #Define predictors and class:
 X_adni = metabo_adni.iloc[:, 0:228].values
 y_adni = metabo_adni.iloc[:, 228].values
 
-from sklearn.preprocessing import StandardScaler
-#Scaling data
+#Scaling data:
 scaler_adni = StandardScaler()
 X_adni = scaler_adni.fit_transform(X_adni)
 
-#carregar classificadores ja treinados no banco de dados (metodo: gridsearch e validacao cruzada)
-import pickle
-#Generating models:
+#Generating models and tuning parameters with GridSearch:
 
 # 1- Desicion Tree
 parametros_arvore = {'criterion': ['gini', 'entropy','log_loss],
@@ -51,7 +49,6 @@ print(melhores_parametros_arvore)
 print(melhor_resultado_arvore)
 #{'criterion': 'gini', 'min_samples_leaf': 5, 'min_samples_split': 10, 'splitter': 'random'}
 # 0.5729636560622476
-
 
 # 2- Random Forest
 parametros_random = {'criterion': ['gini', 'entropy'],
@@ -134,17 +131,15 @@ for i in range(30):
   scores = cross_val_score(rede_neural, X_adni, y_adni, cv = kfold)
   resultados_rede_neural.append(scores.mean())
 
-
 resultados = pd.DataFrame({'Arvore': resultados_arvore, 'Random forest': resultados_random_forest,
                            'KNN': resultados_knn,
                            'SVM': resultados_svm, 'Rede neural': resultados_rede_neural})
-
 resultados
 print(resultados.describe()) 
 resultados.var()
 (resultados.std() / resultados.mean()) * 100 
 
-## testing Normality distribution in classifiers accuracy: 
+## Testing Normality distribution in classifiers accuracy results: 
 shapiro(resultados_arvore), shapiro(resultados_random_forest), shapiro(resultados_knn), shapiro(resultados_svm), shapiro(resultados_rede_neural)
 #(ShapiroResult(statistic=0.9837696552276611, pvalue=0.9144353866577148),
  #ShapiroResult(statistic=0.9736077189445496, pvalue=0.6418033838272095),
@@ -158,7 +153,7 @@ sns.displot(resultados_knn, kind = 'kde');
 sns.displot(resultados_svm, kind = 'kde');
 sns.displot(resultados_rede_neural, kind = 'kde');
 
-# Null-Hypothesis test using ANOVA followed by Tukey's post test comparing classififer's accuracy
+# Null-Hypothesis test using ANOVA followed by Tukey's post test comparing classififer's accuracy results:
 _, p = f_oneway(resultados_arvore, resultados_random_forest, resultados_knn, resultados_svm, resultados_rede_neural)
 p
 alpha = 0.05
@@ -219,30 +214,50 @@ random = pickle.load(open('random_forest_finalizado.sav', 'rb'))
 # Testing classifiers in an single example from same Dataset:                                
 exemplo = X_adni[700] 
 exemplo = exemplo.reshape(1,-1) 
-rede_neural.predict(exemplo) 
+rede_neural.predict(exemplo) #AD
+                                   
 exexmplo2 = X_adni[88]
 exexmplo2 =  exexmplo2.reshape(1,-1) 
-rede_neural.predict(exexmplo2)
-
-#example:
-exemplo = X_adni[701] # a linha saiu em forma de coluna !
-exemplo = exemplo.reshape(1,-1)
-arvore.predict(exemplo) 
-svm.predict(exemplo) 
-random.predict(exemplo) 
+rede_neural.predict(exexmplo2) #CN
 
 # Combining classifiers:
-exemplo = X_adni[411] 
-exemplo = exemplo.reshape(1,-1) 
-
 resposta_rede_neural = rede_neural.predict(exemplo)
 resposta_arvore = arvore.predict(exemplo)
-@@ -69,7 +260,11 @@
+resposta_svm = svm.predict(exemplo)
+resposta_random = random.predict(exemplo)
+
+resposta_rede_neural[0], resposta_arvore[0], resposta_svm[0], resposta_random[0]
+
+CN = 0
+AD = 0
+
+if resposta_rede_neural[0] == 'AD':
+  AD += 1
+else:
+  CN += 1
+
+if resposta_arvore[0] == 'AD':
+  AD += 1
+else:
+  CN += 1
+
+if resposta_svm[0] == 'AD':
+  AD += 1
+else:
+  CN += 1
+
+if resposta_random[0] == 'AD':
+  AD += 1
+else:
+  CN += 1
+
+if CN > AD:
+  print('Patient without Alzheimers Disease, as computed by 4 algorithms.')
 elif CN == AD:
   print('Cannot determine diagnosis, as computed by 4 algorithms.')
 else:
-  print('Patient with Alzheimers Disease, as computed by 4 algorithms. ')
   print('Patient with Alzheiemrs Disease, as computed by 4 algorithms. ')
+
 
 
 
