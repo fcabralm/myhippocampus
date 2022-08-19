@@ -6,7 +6,6 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-import plotly.express as px
 import scipy.stats
 import pickle
 from sklearn.model_selection import train_test_split
@@ -18,7 +17,7 @@ import shap
 import time
 shap.initjs()
 
-# Open data:
+# Open and pre-process data:
 metabo_adni = pd.read_csv('Final2.csv')
 metabo_adni = metabo_adni.replace(['NDEF'],0)
 metabo_adni = metabo_adni.replace(['TAG'],0)
@@ -29,10 +28,8 @@ X= metabo_adni.iloc[:, 0:228]
 y= metabo_adni.iloc[:, 228]
 
 # Creating array with features name
-metabo_adni.to_records(index=True) # a saida deste codigo sao todos os records do datafram, copiei ecolei os cabecalhos aqui embaixo:
-features = [('XXL.VLDL.P', '<f8'), ('XXL.VLDL.L', '<f8'), ('XXL.VLDL.PL', '<f8'), ('XXL.VLDL.C', '<f8'), ('XXL.VLDL.CE', '<f8'), ('XXL.VLDL.FC', '<f8'), ('XXL.VLDL.TG', '<f8'), ('XL.VLDL.P', '<f8'), ('XL.VLDL.L', '<f8'), ('XL.VLDL.PL', '<f8'), ('XL.VLDL.C', '<f8'), ('XL.VLDL.CE', '<f8'), ('XL.VLDL.FC', '<f8'), ('XL.VLDL.TG', '<f8'), ('L.VLDL.P', '<f8'), ('L.VLDL.L', '<f8'), ('L.VLDL.PL', '<f8'), ('L.VLDL.C', '<f8'), ('L.VLDL.CE', '<f8'), ('L.VLDL.FC', '<f8'), ('L.VLDL.TG', '<f8'), ('M.VLDL.P', '<f8'), ('M.VLDL.L', '<f8'), ('M.VLDL.PL', '<f8'), ('M.VLDL.C', '<f8'), ('M.VLDL.CE', '<f8'), ('M.VLDL.FC', '<f8'), ('M.VLDL.TG', '<f8'), ('S.VLDL.P', '<f8'), ('S.VLDL.L', '<f8'), ('S.VLDL.PL', '<f8'), ('S.VLDL.C', '<f8'), ('S.VLDL.CE', '<f8'), ('S.VLDL.FC', '<f8'), ('S.VLDL.TG', '<f8'), ('XS.VLDL.P', '<f8'), ('XS.VLDL.L', '<f8'), ('XS.VLDL.PL', '<f8'), ('XS.VLDL.C', '<f8'), ('XS.VLDL.CE', '<f8'), ('XS.VLDL.FC', '<f8'), ('XS.VLDL.TG', '<f8'), ('IDL.P', '<f8'), ('IDL.L', '<f8'), ('IDL.PL', '<f8'), ('IDL.C', '<f8'), ('IDL.CE', '<f8'), ('IDL.FC', '<f8'), ('IDL.TG', '<f8'), ('L.LDL.P', '<f8'), ('L.LDL.L', '<f8'), ('L.LDL.PL', '<f8'), ('L.LDL.C', '<f8'), ('L.LDL.CE', '<f8'), ('L.LDL.FC', '<f8'), ('L.LDL.TG', '<f8'), ('M.LDL.P', '<f8'), ('M.LDL.L', '<f8'), ('M.LDL.PL', '<f8'), ('M.LDL.C', '<f8'), ('M.LDL.CE', '<f8'), ('M.LDL.FC', '<f8'), ('M.LDL.TG', '<f8'), ('S.LDL.P', '<f8'), ('S.LDL.L', '<f8'), ('S.LDL.PL', '<f8'), ('S.LDL.C', '<f8'), ('S.LDL.CE', '<f8'), ('S.LDL.FC', '<f8'), ('S.LDL.TG', '<f8'), ('XL.HDL.P', '<f8'), ('XL.HDL.L', '<f8'), ('XL.HDL.PL', '<f8'), ('XL.HDL.C', '<f8'), ('XL.HDL.CE', '<f8'), ('XL.HDL.FC', '<f8'), ('XL.HDL.TG', '<f8'), ('L.HDL.P', '<f8'), ('L.HDL.L', '<f8'), ('L.HDL.PL', '<f8'), ('L.HDL.C', '<f8'), ('L.HDL.CE', '<f8'), ('L.HDL.FC', '<f8'), ('L.HDL.TG', '<f8'), ('M.HDL.P', '<f8'), ('M.HDL.L', '<f8'), ('M.HDL.PL', '<f8'), ('M.HDL.C', '<f8'), ('M.HDL.CE', '<f8'), ('M.HDL.FC', '<f8'), ('M.HDL.TG', '<f8'), ('S.HDL.P', '<f8'), ('S.HDL.L', '<f8'), ('S.HDL.PL', '<f8'), ('S.HDL.C', '<f8'), ('S.HDL.CE', '<f8'), ('S.HDL.FC', '<f8'), ('S.HDL.TG', '<f8'), ('XXL.VLDL.PL_.', 'O'), ('XXL.VLDL.C_.', 'O'), ('XXL.VLDL.CE_.', 'O'), ('XXL.VLDL.FC_.', 'O'), ('XXL.VLDL.TG_.', 'O'), ('XL.VLDL.PL_.', 'O'), ('XL.VLDL.C_.', 'O'), ('XL.VLDL.CE_.', 'O'), ('XL.VLDL.FC_.', 'O'), ('XL.VLDL.TG_.', 'O'), ('L.VLDL.PL_.', 'O'), ('L.VLDL.C_.', 'O'), ('L.VLDL.CE_.', 'O'), ('L.VLDL.FC_.', 'O'), ('L.VLDL.TG_.', 'O'), ('M.VLDL.PL_.', '<f8'), ('M.VLDL.C_.', '<f8'), ('M.VLDL.CE_.', '<f8'), ('M.VLDL.FC_.', '<f8'), ('M.VLDL.TG_.', '<f8'), ('S.VLDL.PL_.', '<f8'), ('S.VLDL.C_.', '<f8'), ('S.VLDL.CE_.', '<f8'), ('S.VLDL.FC_.', '<f8'), ('S.VLDL.TG_.', '<f8'), ('XS.VLDL.PL_.', '<f8'), ('XS.VLDL.C_.', '<f8'), ('XS.VLDL.CE_.', '<f8'), ('XS.VLDL.FC_.', '<f8'), ('XS.VLDL.TG_.', '<f8'), ('IDL.PL_.', '<f8'), ('IDL.C_.', '<f8'), ('IDL.CE_.', '<f8'), ('IDL.FC_.', '<f8'), ('IDL.TG_.', '<f8'), ('L.LDL.PL_.', '<f8'), ('L.LDL.C_.', '<f8'), ('L.LDL.CE_.', '<f8'), ('L.LDL.FC_.', '<f8'), ('L.LDL.TG_.', '<f8'), ('M.LDL.PL_.', '<f8'), ('M.LDL.C_.', '<f8'), ('M.LDL.CE_.', '<f8'), ('M.LDL.FC_.', '<f8'), ('M.LDL.TG_.', '<f8'), ('S.LDL.PL_.', '<f8'), ('S.LDL.C_.', '<f8'), ('S.LDL.CE_.', '<f8'), ('S.LDL.FC_.', '<f8'), ('S.LDL.TG_.', '<f8'), ('XL.HDL.PL_.', 'O'), ('XL.HDL.C_.', 'O'), ('XL.HDL.CE_.', 'O'), ('XL.HDL.FC_.', 'O'), ('XL.HDL.TG_.', 'O'), ('L.HDL.PL_.', '<f8'), ('L.HDL.C_.', '<f8'), ('L.HDL.CE_.', '<f8'), ('L.HDL.FC_.', '<f8'), ('L.HDL.TG_.', '<f8'), ('M.HDL.PL_.', '<f8'), ('M.HDL.C_.', '<f8'), ('M.HDL.CE_.', '<f8'), ('M.HDL.FC_.', '<f8'), ('M.HDL.TG_.', '<f8'), ('S.HDL.PL_.', '<f8'), ('S.HDL.C_.', '<f8'), ('S.HDL.CE_.', '<f8'), ('S.HDL.FC_.', '<f8'), ('S.HDL.TG_.', '<f8'), ('VLDL.D', '<f8'), ('LDL.D', '<f8'), ('HDL.D', '<f8'), ('SERUM.C', '<f8'), ('VLDL.C', '<f8'), ('REMNANT.C', '<f8'), ('LDL.C', '<f8'), ('HDL.C', '<f8'), ('HDL2.C', '<f8'), ('HDL3.C', '<f8'), ('ESTC', '<f8'), ('FREEC', '<f8'), ('SERUM.TG', '<f8'), ('VLDL.TG', '<f8'), ('LDL.TG', '<f8'), ('HDL.TG', '<f8'), ('TOTPG', '<f8'), ('TG.PG', '<f8'), ('PC', '<f8'), ('SM', '<f8'), ('TOTCHO', '<f8'), ('APOA1', '<f8'), ('APOB', '<f8'), ('APOB.APOA1', '<f8'), ('TOTFA', '<f8'), ('UNSAT', '<f8'), ('DHA', '<f8'), ('LA', '<f8'), ('FAW3', '<f8'), ('FAW6', '<f8'), ('PUFA', '<f8'), ('MUFA', '<f8'), ('SFA', '<f8'), ('DHA.FA', '<f8'), ('LA.FA', '<f8'), ('FAW3.FA', '<f8'), ('FAW6.FA', '<f8'), ('PUFA.FA', '<f8'), ('MUFA.FA', '<f8'), ('SFA.FA', '<f8'), ('GLC', '<f8'), ('LAC', '<f8'), ('PYR', 'O'), ('CIT', 'O'), ('GLOL', 'O'), ('ALA', '<f8'), ('GLN', 'O'), ('GLY', 'O'), ('HIS', '<f8'), ('ILE', '<f8'), ('LEU', '<f8'), ('VAL', '<f8'), ('PHE', '<f8'), ('TYR', '<f8'), ('ACE', '<f8'), ('ACACE', '<f8'), ('BOHBUT', '<f8'), ('CREA', '<f8'), ('ALB', '<f8'), ('GP', '<f8')]
-features = np.array(features)
-features = np.delete(features, 1,1) #np.delete (array, linha(0) ou coluna(1), qual delas?)
+features = list(metabo_adni.columns)  
+features = features[0:228]
 
 #Scale the data:
 scaler_adni = StandardScaler()
@@ -54,7 +51,7 @@ rede_neural.predict_proba(example)
 # the greatest proba in this example will be in 0 position, thus 0 = AD
  
 # Obtaining SHAP values:
-#### Decrease em datasets grandes)
+#### Decrease computing time using k meann sampling from predictors (for large datasets like this)
 X_summary = shap.kmeans(X, 100)
 
 #RANDOM FOREST  
@@ -95,8 +92,7 @@ shap.dependence_plot("CREA", shap_values[0], X, features)
 # Visualize the first prediction's explanation with a force plot
 shap.force_plot(explainer_svm.expected_value[0], shap_values[0][0], features = features)
 
-
-####     MLP       ################
+#### ######    MLP       ################
 # explain all the predictions in the test set
 explainer_rede_neural = shap.KernelExplainer(rede_neural.predict_proba, X_summary)
 shap_values = explainer_rede_neural.shap_values(X)
