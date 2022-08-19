@@ -256,7 +256,7 @@ if CN > AD:
 elif CN == AD:
   print('Cannot determine diagnosis, as computed by 4 algorithms.')
 else:
-  print('Patient with Alzheiemrs Disease, as computed by 4 algorithms. ')
+  print('Patient with Alzheimers Disease, as computed by 4 algorithms. ')
 
 
 
